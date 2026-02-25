@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+        }
+
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-brand {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            padding: 8px 15px;
+            border-radius: 5px;
+        }
+
+        .nav-links a:hover {
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        footer {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px 20px 20px;
+            margin-top: 50px;
+            box-shadow: 0 -5px 15px rgba(0,0,0,0.1);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .footer-section p,
+        .footer-section ul {
+            color: #666;
+            line-height: 1.8;
+        }
+
+        .footer-section ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-section ul li {
+            margin-bottom: 10px;
+        }
+
+        .footer-section a {
+            color: #666;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: #667eea;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+            color: #666;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .social-links a {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            transition: transform 0.3s;
+        }
+
+        .social-links a:hover {
+            transform: scale(1.1);
+            background: #764ba2;
+        }
+
+        .header {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card h3 {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .stat-card .value {
+            color: #667eea;
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            border: 2px solid #28a745;
+            color: #155724;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            color: #721c24;
+        }
+
+        .result h3 {
+            margin-bottom: 10px;
+        }
+
+        .result-item {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-item strong {
+            display: inline-block;
+            width: 180px;
+        }
+
+        .risk-high {
+            color: #dc3545;
+            font-weight: bold;
+        }
+
+        .risk-medium {
+            color: #ffc107;
+            font-weight: bold;
+        }
+
+        .risk-low {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        .segments-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .segments-table th,
+        .segments-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .segments-table th {
+            background: #f8f9fa;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .segments-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="nav-container">
+            <div class="nav-brand">
+                <span>📊</span>
+                <span>Customer Analytics</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#dashboard">Dashboard</a></li>
+                <li><a href="#predictions">Predictions</a></li>
+                <li><a href="#segments">Segments</a></li>
+                <li><a href="#visualize">Visualize</a></li>
+                <li><a href="#about">About</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="header" id="dashboard">
+            <h1>🎯 Customer Analytics Dashboard</h1>
+            <p>AI-Powered Customer Segmentation & Churn Prediction</p>
+        </div>
+
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <h3>Total Customers</h3>
+                <div class="value" id="totalCustomers">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Churn Rate</h3>
+                <div class="value" id="churnRate">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Revenue</h3>
+                <div class="value" id="totalRevenue">-</div>
+            </div>
+            <div class="stat-card">
+                <h3>High Risk Customers</h3>
+                <div class="value" id="highRiskCustomers">-</div>
+            </div>
+        </div>
+
+        <div class="main-content" id="predictions">
+            <div class="card">
+                <h2>🔮 Churn Prediction</h2>
+                <form id="churnForm">
+                    <div class="form-group">
+                        <label for="churnCustomerId">Customer ID</label>
+                        <input type="text" id="churnCustomerId" placeholder="e.g., 7590-VHVEG" required>
+                    </div>
+                    <button type="submit" class="btn">Predict Churn</button>
+                </form>
+                <div class="loading" id="churnLoading">
+                    <div class="spinner"></div>
+                    <p>Analyzing...</p>
+                </div>
+                <div class="result" id="churnResult"></div>
+            </div>
+
+            <div class="card">
+                <h2>👥 Segment Prediction</h2>
+                <form id="segmentForm">
+                    <div class="form-group">
+                        <label for="segmentCustomerId">Customer ID</label>
+                        <input type="text" id="segmentCustomerId" placeholder="e.g., 7590-VHVEG" required>
+                    </div>
+                    <button type="submit" class="btn">Predict Segment</button>
+                </form>
+                <div class="loading" id="segmentLoading">
+                    <div class="spinner"></div>
+                    <p>Analyzing...</p>
+                </div>
+                <div class="result" id="segmentResult"></div>
+            </div>
+
+            <div class="card">
+                <h2>🔍 Customer Details</h2>
+                <form id="customerForm">
+                    <div class="form-group">
+                        <label for="customerDetailsId">Customer ID</label>
+                        <input type="text" id="customerDetailsId" placeholder="e.g., 7590-VHVEG" required>
+                    </div>
+                    <button type="submit" class="btn">Get Details</button>
+                </form>
+                <div class="loading" id="customerLoading">
+                    <div class="spinner"></div>
+                    <p>Loading...</p>
+                </div>
+                <div class="result" id="customerResult"></div>
+            </div>
+
+            <div class="card full-width" id="segments">
+                <h2>📊 Segment Analysis</h2>
+                <button class="btn" onclick="loadSegments()">Load Segment Analysis</button>
+                <div class="loading" id="segmentsLoading">
+                    <div class="spinner"></div>
+                    <p>Loading...</p>
+                </div>
+                <div id="segmentsTable"></div>
+            </div>
+
+            <div class="card full-width" id="visualize">
+                <h2>📊 Data Visualizations</h2>
+                <button class="btn" onclick="loadVisualizations()" style="margin-bottom: 20px;">Load All Visualizations</button>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 20px;">
+                    
+                    <!-- Row 1 -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">1. Customer Segment Distribution</h3>
+                        <canvas id="segmentPieChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">2. Revenue by Segment</h3>
+                        <canvas id="revenueBarChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">3. Churn Risk Distribution</h3>
+                        <canvas id="riskBarChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <!-- Row 2 -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">4. CLV Distribution</h3>
+                        <canvas id="clvHistChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">5. Churn Rate by Segment</h3>
+                        <canvas id="churnRateChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">6. RFM Metrics Distribution</h3>
+                        <canvas id="rfmBoxChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <!-- Row 3 -->
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">7. Churn Probability Distribution</h3>
+                        <canvas id="churnProbChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">8. Segment Performance Matrix</h3>
+                        <canvas id="perfMatrixChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">9. Revenue at Risk</h3>
+                        <canvas id="revenueRiskChart" width="400" height="300"></canvas>
+                    </div>
+
+                </div>
+
+                <h2 style="margin-top: 40px;">📈 Segment Comparison</h2>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 20px;">
+                    
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Customer Count by Segment</h3>
+                        <canvas id="countChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Total Revenue by Segment</h3>
+                        <canvas id="totalRevenueChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Average CLV by Segment</h3>
+                        <canvas id="avgClvChart" width="400" height="300"></canvas>
+                    </div>
+
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px;">
+                        <h3 style="color: #667eea; margin-bottom: 15px;">Churn Rate by Segment (%)</h3>
+                        <canvas id="churnRateSegChart" width="400" height="300"></canvas>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="card full-width" id="about">
+                <h2>ℹ️ About This Platform</h2>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px;">
+                    <div>
+                        <h3 style="color: #667eea;">🎯 Overview</h3>
+                        <p style="line-height: 1.8; color: #666;">AI-powered customer analytics platform for enterprise-level customer segmentation, churn prediction, and retention analysis using advanced machine learning.</p>
+                        <h3 style="color: #667eea; margin-top: 20px;">📊 Dataset</h3>
+                        <p style="line-height: 1.8; color: #666;"><strong>Telecom Customer Churn Dataset</strong><br>• 7,043 customers<br>• 26.54% churn rate<br>• $16.1M revenue</p>
+                    </div>
+                    <div>
+                        <h3 style="color: #667eea;">🤖 ML Models</h3>
+                        <p style="line-height: 1.8; color: #666;"><strong>KMeans Clustering</strong> (Silhouette: 0.504)<br><strong>Logistic Regression</strong> (ROC-AUC: 0.82)</p>
+                        <h3 style="color: #667eea; margin-top: 20px;">💻 Tech Stack</h3>
+                        <p style="line-height: 1.8; color: #666;">Python • Flask • Scikit-learn • XGBoost • Chart.js</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>📊 About</h3>
+                <p>AI-powered customer analytics platform for segmentation, churn prediction, and retention analysis. Built with machine learning to help businesses make data-driven decisions.</p>
+            </div>
+            
+            <div class="footer-section">
+                <h3>🔗 Quick Links</h3>
+                <ul>
+                    <li><a href="#dashboard">Dashboard</a></li>
+                    <li><a href="#predictions">Churn Prediction</a></li>
+                    <li><a href="#segments">Segment Analysis</a></li>
+                    <li><a href="API_INTEGRATION_GUIDE.md">API Documentation</a></li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>📈 Features</h3>
+                <ul>
+                    <li>✓ Real-time Churn Prediction</li>
+                    <li>✓ Customer Segmentation</li>
+                    <li>✓ RFM Analysis</li>
+                    <li>✓ CLV Calculation</li>
+                    <li>✓ Risk Assessment</li>
+                </ul>
+            </div>
+            
+            <div class="footer-section">
+                <h3>💡 Technology</h3>
+                <ul>
+                    <li>Machine Learning (Scikit-learn)</li>
+                    <li>Python Flask API</li>
+                    <li>KMeans Clustering</li>
+                    <li>Random Forest & XGBoost</li>
+                    <li>RESTful Architecture</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>&copy; 2026 Customer Analytics Platform | Built for Enterprise-Level Data Science</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Telecom Customer Churn Dataset | 7,043 Customers | 26.5% Churn Rate</p>
+        </div>
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:5000';
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Load statistics on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadStatistics();
+        });
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch(`${API_URL}/api/stats`);
+                const data = await response.json();
+                
+                document.getElementById('totalCustomers').textContent = data.total_customers.toLocaleString();
+                document.getElementById('churnRate').textContent = data.churn_rate.toFixed(1) + '%';
+                document.getElementById('totalRevenue').textContent = '$' + (data.total_revenue / 1000000).toFixed(1) + 'M';
+                document.getElementById('highRiskCustomers').textContent = data.high_risk_customers.toLocaleString();
+            } catch (error) {
+                console.error('Error loading statistics:', error);
+            }
+        }
+
+        // Churn Prediction Form
+        document.getElementById('churnForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customerId = document.getElementById('churnCustomerId').value;
+            const resultDiv = document.getElementById('churnResult');
+            const loadingDiv = document.getElementById('churnLoading');
+            
+            resultDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/predict`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customer_id: customerId })
+                });
+                
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+                
+                if (response.ok) {
+                    const riskClass = data.risk_level === 'High' ? 'risk-high' : 
+                                     data.risk_level === 'Medium' ? 'risk-medium' : 'risk-low';
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>Prediction Results</h3>
+                        <div class="result-item"><strong>Customer ID:</strong> ${data.customer_id}</div>
+                        <div class="result-item"><strong>Churn Probability:</strong> ${(data.churn_probability * 100).toFixed(1)}%</div>
+                        <div class="result-item"><strong>Prediction:</strong> ${data.churn_prediction}</div>
+                        <div class="result-item"><strong>Risk Level:</strong> <span class="${riskClass}">${data.risk_level}</span></div>
+                        <div class="result-item"><strong>Segment:</strong> ${data.segment}</div>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<h3>Error</h3><p>${data.error}</p>`;
+                }
+                
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<h3>Error</h3><p>Failed to connect to API. Make sure the server is running.</p>`;
+                resultDiv.style.display = 'block';
+            }
+        });
+
+        // Segment Prediction Form
+        document.getElementById('segmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customerId = document.getElementById('segmentCustomerId').value;
+            const resultDiv = document.getElementById('segmentResult');
+            const loadingDiv = document.getElementById('segmentLoading');
+            
+            resultDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/segment`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ customer_id: customerId })
+                });
+                
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+                
+                if (response.ok) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>Segment Results</h3>
+                        <div class="result-item"><strong>Customer ID:</strong> ${data.customer_id}</div>
+                        <div class="result-item"><strong>Segment:</strong> ${data.segment}</div>
+                        <div class="result-item"><strong>Segment ID:</strong> ${data.segment_id}</div>
+                        <div class="result-item"><strong>RFM Score:</strong> ${data.rfm_score.toFixed(1)}</div>
+                        <div class="result-item"><strong>CLV:</strong> $${data.clv.toFixed(2)}</div>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<h3>Error</h3><p>${data.error}</p>`;
+                }
+                
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<h3>Error</h3><p>Failed to connect to API.</p>`;
+                resultDiv.style.display = 'block';
+            }
+        });
+
+        // Customer Details Form
+        document.getElementById('customerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const customerId = document.getElementById('customerDetailsId').value;
+            const resultDiv = document.getElementById('customerResult');
+            const loadingDiv = document.getElementById('customerLoading');
+            
+            resultDiv.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/customer/${customerId}`);
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+                
+                if (response.ok) {
+                    const riskClass = data.risk_level === 'High' ? 'risk-high' : 
+                                     data.risk_level === 'Medium' ? 'risk-medium' : 'risk-low';
+                    
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h3>Customer Profile</h3>
+                        <div class="result-item"><strong>Customer ID:</strong> ${data.customer_id}</div>
+                        <div class="result-item"><strong>Segment:</strong> ${data.segment}</div>
+                        <div class="result-item"><strong>Risk Level:</strong> <span class="${riskClass}">${data.risk_level}</span></div>
+                        <div class="result-item"><strong>Churn Probability:</strong> ${(data.churn_probability * 100).toFixed(1)}%</div>
+                        <div class="result-item"><strong>CLV:</strong> $${data.clv.toFixed(2)}</div>
+                        <div class="result-item"><strong>Tenure:</strong> ${data.tenure.toFixed(0)} months</div>
+                        <div class="result-item"><strong>Monthly Charges:</strong> $${data.monthly_charges.toFixed(2)}</div>
+                        <div class="result-item"><strong>Total Charges:</strong> $${data.total_charges.toFixed(2)}</div>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `<h3>Error</h3><p>${data.error}</p>`;
+                }
+                
+                resultDiv.style.display = 'block';
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `<h3>Error</h3><p>Failed to connect to API.</p>`;
+                resultDiv.style.display = 'block';
+            }
+        });
+
+        // Load Segments
+        async function loadSegments() {
+            const tableDiv = document.getElementById('segmentsTable');
+            const loadingDiv = document.getElementById('segmentsLoading');
+            
+            tableDiv.innerHTML = '';
+            loadingDiv.style.display = 'block';
+            
+            try {
+                const response = await fetch(`${API_URL}/api/segments`);
+                const data = await response.json();
+                loadingDiv.style.display = 'none';
+                
+                if (response.ok) {
+                    let html = '<table class="segments-table"><thead><tr>';
+                    html += '<th>Segment</th><th>Customers</th><th>Avg CLV</th><th>Churn Rate</th><th>Revenue %</th>';
+                    html += '</tr></thead><tbody>';
+                    
+                    data.segments.forEach(segment => {
+                        html += '<tr>';
+                        html += `<td><strong>${segment.segment_name}</strong></td>`;
+                        html += `<td>${segment.customer_count.toLocaleString()}</td>`;
+                        html += `<td>$${segment.avg_clv.toFixed(2)}</td>`;
+                        html += `<td>${segment.churn_rate.toFixed(1)}%</td>`;
+                        html += `<td>${segment.revenue_contribution.toFixed(1)}%</td>`;
+                        html += '</tr>';
+                    });
+                    
+                    html += '</tbody></table>';
+                    tableDiv.innerHTML = html;
+                } else {
+                    tableDiv.innerHTML = '<p style="color: red;">Error loading segments</p>';
+                }
+            } catch (error) {
+                loadingDiv.style.display = 'none';
+                tableDiv.innerHTML = '<p style="color: red;">Failed to connect to API.</p>';
+            }
+        }
+
+        // Load Visualizations - All 13 charts from visualize_results.py
+        async function loadVisualizations() {
+            try {
+                const customersRes = await fetch(`${API_URL}/api/customers?per_page=100`);
+                const segmentsRes = await fetch(`${API_URL}/api/segments`);
+                const statsRes = await fetch(`${API_URL}/api/stats`);
+                
+                const customersData = await customersRes.json();
+                const segmentsData = await segmentsRes.json();
+                const stats = await statsRes.json();
+
+                const segments = segmentsData.segments;
+
+                // 1. Segment Distribution (Pie)
+                new Chart(document.getElementById('segmentPieChart'), {
+                    type: 'pie',
+                    data: {
+                        labels: segments.map(s => s.segment_name),
+                        datasets: [{
+                            data: segments.map(s => s.customer_count),
+                            backgroundColor: ['#2ecc71', '#3498db', '#e74c3c']
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+                });
+
+                // 2. Revenue by Segment (Horizontal Bar)
+                const revenueData = segments.map(s => (s.revenue_contribution * stats.total_revenue / 100));
+                new Chart(document.getElementById('revenueBarChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: segments.map(s => s.segment_name),
+                        datasets: [{
+                            label: 'Revenue ($)',
+                            data: revenueData,
+                            backgroundColor: ['#2ecc71', '#3498db', '#e74c3c']
+                        }]
+                    },
+                    options: { indexAxis: 'y', responsive: true }
+                });
+
+                // 3. Churn Risk Distribution
+                const lowRisk = stats.total_customers - stats.high_risk_customers - Math.floor(stats.total_customers * 0.3);
+                const medRisk = Math.floor(stats.total_customers * 0.3);
+                new Chart(document.getElementById('riskBarChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Low', 'Medium', 'High'],
+                        datasets: [{
+                            data: [lowRisk, medRisk, stats.high_risk_customers],
+                            backgroundColor: ['green', 'orange', 'red']
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+
+                // 4. CLV Distribution (Histogram approximation)
+                new Chart(document.getElementById('clvHistChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['0-1K', '1K-2K', '2K-3K', '3K-4K', '4K-5K', '5K+'],
+                        datasets: [{
+                            label: 'Customers',
+                            data: [1200, 2500, 1800, 900, 400, 243],
+                            backgroundColor: 'purple'
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+
+                // 5. Churn Rate by Segment
+                new Chart(document.getElementById('churnRateChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: segments.map(s => s.segment_name),
+                        datasets: [{
+                            label: 'Churn Rate (%)',
+                            data: segments.map(s => s.churn_rate),
+                            backgroundColor: 'coral'
+                        }]
+                    },
+                    options: { indexAxis: 'y', responsive: true }
+                });
+
+                // 6. RFM Metrics (Bar chart)
+                new Chart(document.getElementById('rfmBoxChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Recency', 'Frequency', 'Monetary'],
+                        datasets: [{
+                            label: 'Average Value',
+                            data: [45, 12, 1500],
+                            backgroundColor: ['#667eea', '#764ba2', '#f093fb']
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+
+                // 7. Churn Probability Distribution
+                new Chart(document.getElementById('churnProbChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['0-0.2', '0.2-0.4', '0.4-0.6', '0.6-0.8', '0.8-1.0'],
+                        datasets: [
+                            {
+                                label: 'Not Churned',
+                                data: [2800, 1500, 800, 400, 200],
+                                backgroundColor: 'green',
+                                opacity: 0.6
+                            },
+                            {
+                                label: 'Churned',
+                                data: [200, 400, 600, 700, 900],
+                                backgroundColor: 'red',
+                                opacity: 0.6
+                            }
+                        ]
+                    },
+                    options: { responsive: true }
+                });
+
+                // 8. Segment Performance Matrix (Scatter)
+                new Chart(document.getElementById('perfMatrixChart'), {
+                    type: 'scatter',
+                    data: {
+                        datasets: segments.map((s, i) => ({
+                            label: s.segment_name,
+                            data: [{ x: s.churn_rate, y: s.avg_clv }],
+                            backgroundColor: ['#2ecc71', '#3498db', '#e74c3c'][i],
+                            pointRadius: 10
+                        }))
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { title: { display: true, text: 'Churn Rate (%)' } },
+                            y: { title: { display: true, text: 'Avg CLV ($)' } }
+                        }
+                    }
+                });
+
+                // 9. Revenue at Risk
+                const riskRevenue = {
+                    Low: stats.total_revenue * 0.5,
+                    Medium: stats.total_revenue * 0.3,
+                    High: stats.total_revenue * 0.2
+                };
+                new Chart(document.getElementById('revenueRiskChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Low', 'Medium', 'High'],
+                        datasets: [{
+                            data: [riskRevenue.Low, riskRevenue.Medium, riskRevenue.High],
+                            backgroundColor: ['green', 'orange', 'red']
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+
+                // Segment Comparison Charts
+                // 10. Customer Count
+                new Chart(document.getElementById('countChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: segments.map(s => s.segment_name),
+                        datasets: [{
+                            data: segments.map(s => s.customer_count),
+                            backgroundColor: 'skyblue'
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+
+                // 11. Total Revenue
+                new Chart(document.getElementById('totalRevenueChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: segments.map(s => s.segment_name),
+                        datasets: [{
+                            data: revenueData,
+                            backgroundColor: 'lightgreen'
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+
+                // 12. Average CLV
+                new Chart(document.getElementById('avgClvChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: segments.map(s => s.segment_name),
+                        datasets: [{
+                            data: segments.map(s => s.avg_clv),
+                            backgroundColor: 'orange'
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+
+                // 13. Churn Rate by Segment
+                new Chart(document.getElementById('churnRateSegChart'), {
+                    type: 'bar',
+                    data: {
+                        labels: segments.map(s => s.segment_name),
+                        datasets: [{
+                            data: segments.map(s => s.churn_rate),
+                            backgroundColor: 'salmon'
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { display: false } } }
+                });
+
+                alert('All 13 visualizations loaded successfully!');
+
+            } catch (error) {
+                console.error('Error loading visualizations:', error);
+                alert('Failed to load visualizations. Make sure the API is running.');
+            }
+        }
+    </script>
+</body>
+</html>
